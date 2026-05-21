@@ -151,7 +151,7 @@ function App() {
                   <p className="auth-description">
                       Авторизация прошла успешно
                   </p>
-                  <button className="button" onClick={() => setStep('phone')}>
+                  <button className="quit-button" onClick={() => setStep('phone')}>
                       Выйти
                   </button>
               </>
