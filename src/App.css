@@ -125,6 +125,13 @@
   line-height: 24px;
 }
 
+.auth-retry-text {
+  margin: 40px 0 0;
+  color: #97a1af;
+  font-size: 14px;
+  line-height: 20px;
+}
+
 @media (max-width: 768px) {
   .auth {
     width: auto;

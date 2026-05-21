@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 type Step = 'phone' | 'otp' | 'success';
@@ -7,11 +7,24 @@ function App() {
     const [step, setStep] = useState<Step>('phone');
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState('');
+    const [retrySeconds, setRetrySeconds] = useState(0);
     const [phoneError, setPhoneError] = useState('');
     const [otpError, setOtpError] = useState('');
     const [isOtpLoading, setIsOtpLoading] = useState(false);
     const [isSignInLoading, setIsSignInLoading] = useState(false);
     const [apiError, setApiError] = useState('');
+
+    useEffect(() => {
+        if (retrySeconds <= 0) {
+            return;
+        }
+
+        const timerId = window.setTimeout(() => {
+            setRetrySeconds((seconds) => seconds - 1);
+        }, 1000);
+
+        return () => window.clearTimeout(timerId);
+    }, [retrySeconds]);
 
     const handlePhoneChange = (value: string) => {
         setPhone(value.replace(/\s/g, ''));
@@ -35,8 +48,25 @@ function App() {
         await new Promise((resolve) => setTimeout(resolve, 700));
 
         setIsOtpLoading(false);
+        setRetrySeconds(60);
         setStep('otp');
     }
+
+    const handleRepeatOtp = async () => {
+        if (retrySeconds > 0 || isOtpLoading) {
+            return;
+        }
+
+        setIsOtpLoading(true);
+        setApiError('');
+
+        await new Promise((resolve) => setTimeout(resolve, 700));
+
+        setOtp('');
+        setOtpError('');
+        setIsOtpLoading(false);
+        setRetrySeconds(60);
+    };
 
     const handleOtpSubmit = async () => {
         if (otp.length !== 6) {
@@ -104,10 +134,15 @@ function App() {
                       {isSignInLoading ? "Входим..." : "Войти"}
                   </button>
                   {apiError && <p className="auth-error">{apiError}</p>}
-                  <button className="auth-repeat"  type="button"
-                      onClick={() => {setOtp(''); setOtpError('');}}>
-                      Запросить код ещё раз
-                  </button>
+                  {retrySeconds > 0 ? (
+                      <p className="auth-retry-text">
+                          Запросить код повторно можно через {retrySeconds} секунд
+                      </p>
+                  ) : (
+                      <button className="auth-repeat" type="button" onClick={handleRepeatOtp}>
+                          {isOtpLoading ? 'Отправляем...' : 'Запросить код ещё раз'}
+                      </button>
+                  )}
               </>
           )}
           {step === 'success' && (
