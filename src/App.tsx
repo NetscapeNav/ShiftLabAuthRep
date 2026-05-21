@@ -29,12 +29,12 @@ function App() {
     }, [retrySeconds]);
 
     const handlePhoneChange = (value: string) => {
-        setPhone(value.replace(/\s/g, ''));
+        setPhone(value.replace(/\D/g, ''));
         setPhoneError('');
     }
 
     const handleOtpChange = (value: string) => {
-        setOtp(value.replace(/\s/g, '').slice(0, 6));
+        setOtp(value.replace(/\D/g, '').slice(0, 6));
         setOtpError('');
     }
 
