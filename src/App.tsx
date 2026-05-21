@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { AuthField } from './components/AuthField';
+import { Button } from './components/Button';
 
 type Step = 'phone' | 'otp' | 'success';
 
@@ -31,7 +33,7 @@ function App() {
         setPhoneError('');
     }
 
-    const handleOtpChange  = (value: string) => {
+    const handleOtpChange = (value: string) => {
         setOtp(value.replace(/\s/g, '').slice(0, 6));
         setOtpError('');
     }
@@ -99,16 +101,13 @@ function App() {
                       Введите номер телефона для входа<br/>
                       в личный кабинет
                   </p>
-                  <label className="auth-field">
-                      <input className={`auth-input ${phoneError ? 'auth-input-error' : ''}`}
-                             value={phone} onChange={(e) => handlePhoneChange(e.target.value)}
-                             type="tel" placeholder="Телефон" inputMode="numeric"/>
-                      {phoneError && <span className="auth-error">{phoneError}</span>}
-                  </label>
-                  <button className="auth-button" type="button" onClick={handlePhoneSubmit}
-                          disabled={isOtpLoading}>
-                      {isOtpLoading ? "Отправляем..." : "Продолжить"}
-                  </button>
+                  <AuthField error={phoneError} value={phone} onChange={(e) => handlePhoneChange(e.target.value)}
+                             type="tel" placeholder="Телефон" inputMode="numeric">
+                  </AuthField>
+                  <Button type="button" onClick={handlePhoneSubmit}
+                          isLoading={isOtpLoading}>
+                      Продолжить
+                  </Button>
                   {apiError && <p className="auth-error">{apiError}</p>}
               </>
           )}
@@ -119,20 +118,16 @@ function App() {
                       Введите номер телефона для входа<br/>
                       в личный кабинет
                   </p>
-                  <label className="auth-field">
-                      <input className={`auth-input ${otpError ? 'auth-input-error' : ''}`}
-                             value={phone} onChange={(e) => handlePhoneChange(e.target.value)}
-                             type="tel" placeholder="Телефон" inputMode="numeric"/>
-                      {phoneError && <span className="auth-error">{phoneError}</span>}
-                      <input className={`auth-input ${otpError ? 'auth-input-error' : ''}`}
-                             value={otp} onChange={(e) => handleOtpChange(e.target.value)}
-                             type="number" placeholder="Код потверждения" inputMode="numeric" required/>
-                      {otpError && <span className="auth-error">{otpError}</span>}
-                  </label>
-                  <button className="auth-button" onClick={handleOtpSubmit}
-                          disabled={isSignInLoading}>
-                      {isSignInLoading ? "Входим..." : "Войти"}
-                  </button>
+                  <AuthField error={phoneError} value={phone} onChange={(e) => handlePhoneChange(e.target.value)}
+                             type="tel" placeholder="Телефон" inputMode="numeric">
+                  </AuthField>
+                  <AuthField error={otpError} value={otp} onChange={(e) => handleOtpChange(e.target.value)}
+                             type="number" placeholder="Код подтверждения" inputMode="numeric">
+                  </AuthField>
+                  <Button type="button" onClick={handleOtpSubmit}
+                          isLoading={isSignInLoading}>
+                      Войти
+                  </Button>
                   {apiError && <p className="auth-error">{apiError}</p>}
                   {retrySeconds > 0 ? (
                       <p className="auth-retry-text">
@@ -151,9 +146,9 @@ function App() {
                   <p className="auth-description">
                       Авторизация прошла успешно
                   </p>
-                  <button className="quit-button" onClick={() => setStep('phone')}>
+                  <Button type="button" onClick={() => setStep('phone')}>
                       Выйти
-                  </button>
+                  </Button>
               </>
           )}
       </section>
