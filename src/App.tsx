@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import './App.css'
-import { getSession, requestOtp, signIn } from './api/auth';
 
 type Step = 'phone' | 'otp' | 'success';
 
@@ -33,14 +32,10 @@ function App() {
         setIsOtpLoading(true);
         setApiError('');
 
-        try {
-            await requestOtp(phone);
-            setStep('otp');
-        } catch (error) {
-            setApiError(error instanceof Error ? error.message : "Не удалось отправить код");
-        } finally {
-            setIsOtpLoading(false);
-        }
+        await new Promise((resolve) => setTimeout(resolve, 700));
+
+        setIsOtpLoading(false);
+        setStep('otp');
     }
 
     const handleOtpSubmit = async () => {
@@ -52,19 +47,16 @@ function App() {
         setIsSignInLoading(true);
         setApiError('');
 
-        try {
-            const responce = await signIn(phone, otp);
+        await new Promise((resolve) => setTimeout(resolve, 700));
 
-            if (responce.token) {
-                localStorage.setItem('token', responce.token);
-                await getSession(responce.token);
-            }
-            setStep('success');
-        } catch (error) {
-            setApiError(error instanceof Error ? error.message : "Не удалось войти");
-        } finally {
+        if (otp !== '123456') {
+            setApiError('Неверный код подтверждения');
             setIsSignInLoading(false);
+            return;
         }
+
+        setIsSignInLoading(false);
+        setStep('success');
     };
 
     return (
