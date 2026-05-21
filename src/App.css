@@ -91,6 +91,16 @@
   background: #0052cc;
 }
 
+.auth-button:disabled {
+  background: #cce0ff;
+  cursor: not-allowed;
+}
+
+.auth-button:disabled:hover {
+  background: #cce0ff !important;
+}
+
+
 .auth-repeat {
   display: block;
   width: fit-content;

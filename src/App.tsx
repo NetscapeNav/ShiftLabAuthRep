@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import { getSession, requestOtp, signIn } from './api/auth';
 
 type Step = 'phone' | 'otp' | 'success';
 
@@ -9,6 +10,9 @@ function App() {
     const [otp, setOtp] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const [otpError, setOtpError] = useState('');
+    const [isOtpLoading, setIsOtpLoading] = useState(false);
+    const [isSignInLoading, setIsSignInLoading] = useState(false);
+    const [apiError, setApiError] = useState('');
 
     const handlePhoneChange = (value: string) => {
         setPhone(value.replace(/\s/g, ''));
@@ -20,22 +24,47 @@ function App() {
         setOtpError('');
     }
 
-    const handlePhoneSubmit = () => {
+    const handlePhoneSubmit = async () => {
         if (!phone) {
             setPhoneError('Поле является обязательным');
             return;
         }
 
-        setStep('otp');
+        setIsOtpLoading(true);
+        setApiError('');
+
+        try {
+            await requestOtp(phone);
+            setStep('otp');
+        } catch (error) {
+            setApiError(error instanceof Error ? error.message : "Не удалось отправить код");
+        } finally {
+            setIsOtpLoading(false);
+        }
     }
 
-    const handleOtpSubmit = () => {
+    const handleOtpSubmit = async () => {
         if (otp.length !== 6) {
             setOtpError('Код должен содержать 6 цифр');
             return;
         }
 
-        setStep('success');
+        setIsSignInLoading(true);
+        setApiError('');
+
+        try {
+            const responce = await signIn(phone, otp);
+
+            if (responce.token) {
+                localStorage.setItem('token', responce.token);
+                await getSession(responce.token);
+            }
+            setStep('success');
+        } catch (error) {
+            setApiError(error instanceof Error ? error.message : "Не удалось войти");
+        } finally {
+            setIsSignInLoading(false);
+        }
     };
 
     return (
@@ -54,9 +83,11 @@ function App() {
                              type="tel" placeholder="Телефон" inputMode="numeric"/>
                       {phoneError && <span className="auth-error">{phoneError}</span>}
                   </label>
-                  <button className="auth-button" type="button" onClick={handlePhoneSubmit}>
-                      Продолжить
+                  <button className="auth-button" type="button" onClick={handlePhoneSubmit}
+                          disabled={isOtpLoading}>
+                      {isOtpLoading ? "Отправляем..." : "Продолжить"}
                   </button>
+                  {apiError && <p className="auth-error">{apiError}</p>}
               </>
           )}
           {step === 'otp' && (
@@ -76,9 +107,11 @@ function App() {
                              type="number" placeholder="Код потверждения" inputMode="numeric" required/>
                       {otpError && <span className="auth-error">{otpError}</span>}
                   </label>
-                  <button className="auth-button" onClick={handleOtpSubmit}>
-                      Войти
+                  <button className="auth-button" onClick={handleOtpSubmit}
+                          disabled={isSignInLoading}>
+                      {isSignInLoading ? "Входим..." : "Войти"}
                   </button>
+                  {apiError && <p className="auth-error">{apiError}</p>}
                   <button className="auth-repeat"  type="button"
                       onClick={() => {setOtp(''); setOtpError('');}}>
                       Запросить код ещё раз
