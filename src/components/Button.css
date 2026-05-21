@@ -1,0 +1,34 @@
+
+.auth-button, .quit-button {
+    display: block;
+    width: 328px;
+    height: 56px;
+    margin: 16px 0;
+    border: 0;
+    border-radius: 16px;
+    background: #1975ff;
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-button:hover, .quit-button:hover {
+    background: #0052cc;
+}
+
+.auth-button:disabled {
+    background: #cce0ff;
+    cursor: not-allowed;
+}
+
+.auth-button:disabled:hover {
+    background: #cce0ff !important;
+}
+
+@media (max-width: 768px) {
+    .auth-button {
+        width: 100%;
+    }
+}
