@@ -1,9 +1,13 @@
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 type ApiError = {
     success?: boolean;
     reason?: string;
     message?: string;
+}
+
+function isApiError(data: unknown): data is ApiError {
+    return typeof data === 'object' && data !== null;
 }
 
 function getStatusMessage(status: number) {
@@ -28,17 +32,15 @@ export async function apiRequest<T>(path: string, options: RequestInit): Promise
     const data = (await response.json().catch(() => null)) as ApiError | T | null;
 
     if (!response.ok) {
-        const apiMessage =
-            data && 'reason' in data && data.reason
-                ? data.reason
-                : data && 'message' in data && data.message
-                    ? data.message
-                    : null;
+        if (response.status >= 500) {
+            throw new Error(getStatusMessage(response.status));
+        }
+        const apiMessage = isApiError(data) ? data.reason ?? data.message : null;
 
         throw new Error(apiMessage ?? getStatusMessage(response.status));
     }
 
-    if (data && 'success' in data && data.success === false) {
+    if (isApiError(data) && data.success === false) {
         throw new Error(data.reason ?? data.message ?? 'Что-то пошло не так');
     }
 

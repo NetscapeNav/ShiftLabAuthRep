@@ -1,20 +1,36 @@
 import { apiRequest } from './client';
 
-type Response = {
+type User = {
+    _id: string;
+    phone: string;
+    firstname: string;
+    middlename: string;
+    lastname: string;
+    email: string;
+    city: string;
+};
+
+export type OtpResponse = {
     success: boolean;
     reason?: string;
+    retryDelay?: number;
 };
 
-type SignInResponse = Response & {
-    token?: string;
+export type SignInResponse = {
+    success: boolean;
+    reason?: string;
+    user: User;
+    token: string;
 };
 
-type SessionResponse = Response & {
-    user?: unknown;
+export type SessionResponse = {
+    success: boolean;
+    reason?: string;
+    user: User;
 };
 
 export function requestOtp(phone: string) {
-    return apiRequest<Response>('/auth/otp', {
+    return apiRequest<OtpResponse>('/auth/otp', {
         method: 'POST',
         body: JSON.stringify({ phone }),
     });
@@ -23,7 +39,10 @@ export function requestOtp(phone: string) {
 export function signIn(phone: string, code: string) {
     return apiRequest<SignInResponse>('/users/signin', {
         method: 'POST',
-        body: JSON.stringify({ phone, code }),
+        body: JSON.stringify({
+            phone,
+            code: Number(code),
+        }),
     });
 }
 

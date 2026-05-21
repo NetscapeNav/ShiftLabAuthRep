@@ -9,9 +9,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://shift-intensive.ru',
+        target: 'https://juniorsbootcamp.ru',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },
